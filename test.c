@@ -5,8 +5,7 @@
 
 #define MAX_LENGTH	12
 
-static void
-test (char *buffer, char *expected) 
+static void test (char *buffer, char *expected) 
 {
   char result[16 * 3 +1];
   unsigned char* digest = md5 (buffer);

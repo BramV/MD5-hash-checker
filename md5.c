@@ -22,19 +22,8 @@
  */
 
 #include "md5.h"
-
-# include <string.h>
-	 
-#ifdef TEST
-# define USE_MD5_PASSWORDS
-# define USE_MD5
-#endif
-
-#ifdef USE_MD5_PASSWORDS
-# define USE_MD5
-#endif
-
-	 //#ifdef USE_MD5
+#include <stdio.h>
+#include <string.h>
 
 #define cpu_to_le32(x) (x)
 #define le32_to_cpu(x) cpu_to_le32(x)
@@ -88,8 +77,7 @@ static UINT4 state[4];
 static unsigned int length;
 static unsigned char buffer[64];
 
-static void
-md5_transform (const unsigned char block[64])
+static void md5_transform (const unsigned char block[64])
 {
   int i, j;
   UINT4 a,b,c,d,tmp;
@@ -139,15 +127,13 @@ md5_transform (const unsigned char block[64])
   state[3] += d;
 }
 
-void
-md5_init()
+void md5_init()
 {
   memcpy ((char *) state, (char *) initstate, sizeof (initstate));
   length = 0;
 }
 
-void
-md5_update (const char *input, int inputlen)
+void md5_update (const char *input, int inputlen)
 {
   int buflen = length & 63;
   length += inputlen;
@@ -172,8 +158,7 @@ md5_update (const char *input, int inputlen)
   buflen = inputlen;
 }
 
-unsigned char *
-md5_final()
+unsigned char * md5_final()
 {
   int i, buflen = length & 63;
 
@@ -195,14 +180,13 @@ md5_final()
   return (unsigned char *) state;
 }
 
-#ifdef USE_MD5_PASSWORDS
+
 /* If CHECK is true, check a password for correctness. Returns 0
    if password was correct, and a value != 0 for error, similarly
    to strcmp.
    If CHECK is false, crypt KEY and save the result in CRYPTED.
    CRYPTED must have a salt.  */
-int
-md5_password (const char *key, char *crypted, int check)
+int md5_password (const char *key, char *crypted, int check)
 {
   int keylen = strlen (key);
   char *salt = crypted + 3; /* skip $1$ header */
@@ -318,10 +302,9 @@ md5_password (const char *key, char *crypted, int check)
   
   return *p;
 }
-#endif
 
-char *
-md5 (const char *input) 
+
+static char * md5 (const char *input) 
 {
   memcpy ((char *) state, (char *) initstate, sizeof (initstate));
   length = 0;
@@ -329,10 +312,7 @@ md5 (const char *input)
   return md5_final ();
 }
 
-#ifdef TEST
-
-static void
-test (char *buffer, char *expected) 
+static void test (char *buffer, char *expected) 
 {
   char result[16 * 3 +1];
   unsigned char* digest = md5 (buffer);
@@ -347,8 +327,7 @@ test (char *buffer, char *expected)
     printf ("MD5(%s) OK\n", buffer);
 }
 
-int
-main (void)
+/*int main (void)
 {
   test ("", "d41d8cd98f00b204e9800998ecf8427e");
   test ("a", "0cc175b9c0f1b6a831c399e269772661");
@@ -376,7 +355,4 @@ main (void)
   else
     printf ("Password OK\n");
   return 0;
-}
-#endif
-
-//#endif
+}*/
