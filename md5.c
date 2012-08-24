@@ -133,7 +133,7 @@ void md5_init()
   length = 0;
 }
 
-void md5_update (const char *input, int inputlen)
+void md5_update (const char * const input, int inputlen)
 {
   int buflen = length & 63;
   length += inputlen;
@@ -146,12 +146,12 @@ void md5_update (const char *input, int inputlen)
   
   memcpy (buffer + buflen, input, 64 - buflen);
   md5_transform (buffer);
-  input += 64 - buflen;
+  const char * newInput = input + 64 - buflen;
   inputlen -= 64 - buflen;
   while (inputlen >= 64)
     {
-      md5_transform (input);
-      input += 64;
+      md5_transform (newInput);
+      newInput += 64;
       inputlen -= 64;
     }
   memcpy (buffer, input, inputlen);
@@ -304,7 +304,7 @@ int md5_password (const char *key, char *crypted, int check)
 }
 
 
-char * md5 (const char *input) 
+char * md5 (const char * const input) 
 {
   memcpy ((char *) state, (char *) initstate, sizeof (initstate));
   length = 0;
@@ -312,19 +312,32 @@ char * md5 (const char *input)
   return md5_final ();
 }
 
-void test (char *buffer, char *expected) 
+bool check_hash_internal (const char * const input, const char * const expected, char result[16 * 3 + 1]) {
+    unsigned char* digest = md5 (input);
+    int i;
+
+    for (i=0; i < 16; i++)
+      sprintf (result+2*i, "%02x", digest[i]);
+  
+    if (strcmp (result, expected))
+      return false;
+    else
+      return true;
+}
+
+bool check_hash (const char * const input, const char * const expected) 
 {
   char result[16 * 3 +1];
-  unsigned char* digest = md5 (buffer);
-  int i;
+  return check_hash_internal (input, expected, result);
+}
 
-  for (i=0; i < 16; i++)
-    sprintf (result+2*i, "%02x", digest[i]);
-
-  if (strcmp (result, expected))
-    printf ("MD5(%s) failed: %s\n", buffer, result);
+void test (const char * const input, const char * const expected)
+{
+  char result[16 * 3 + 1];
+  if (! check_hash_internal (input, expected, result))
+    printf ("MD5(%s) failed: %s\n", input, result);
   else
-    printf ("MD5(%s) OK\n", buffer);
+    printf ("MD5(%s) OK\n", input);
 }
 
 /*int main (void)

@@ -24,9 +24,11 @@
    If CHECK is false, crypt KEY and save the result in CRYPTED.
    CRYPTED must have a salt.  */
 //int md5_password (const char *key, char *crypted, int check);
+typedef enum { false, true } bool;
 
-char *md5(const char *);
-void test (char *buffer, char *expected);
+char *md5(const char * const);
+void test (const char * const, const char * const);
+bool check_hash (const char * const input, const char * const expected);
 
 /* For convenience.  */
 #define check_md5_password(key,crypted)	md5_password((key), (crypted), 1)
