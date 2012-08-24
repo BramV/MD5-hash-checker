@@ -2,9 +2,11 @@
 #include "md5.h"
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define MAX_LENGTH	16
-#define MIN_LENGTH	1
+#define MIN_LENGTH	10
 
 static bool findText_internal(const char * const start, char * const current, const int length, const char * const hash)
 {
@@ -55,15 +57,23 @@ int main(int argc, char ** argv)
 	
 	int count;
 	for (count = MIN_LENGTH; count < MAX_LENGTH; count++) {
-		if (findText(end - count * sizeof(char), count, hash)) {
-			printf("Match found: %s\n", end - count * sizeof(char));
-			*end = '\0';
-			printf("Matching string: %s\n", end - count * sizeof(char));
-			return 0;
-		} else {
-			printf("Tried all passwords with length %d.\n", count);
+		pid_t pID = fork();
+		if(pID == 0){
+			if (findText(end - count * sizeof(char), count, hash)) {
+				printf("Match found: %s\n", end - count * sizeof(char));
+				*end = '\0';
+				printf("Matching string: %s\n", end - count * sizeof(char));
+				return 0;
+			} else {
+				printf("Tried all passwords with length %d.\n", count);
+				return 1;
+			}
 		}
 	}
 	
+	for(count = MIN_LENGTH; count < MAX_LENGTH; count++){
+		wait(NULL);
+		printf("process finished\n");
+	}
 	return 2;
 }
