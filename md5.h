@@ -24,10 +24,8 @@
    If CHECK is false, crypt KEY and save the result in CRYPTED.
    CRYPTED must have a salt.  */
 //int md5_password (const char *key, char *crypted, int check);
- 
-void md5_init();
-void md5_update(const char *, int);
-unsigned char *md5_final();
+
+char *md5(const char *);
 
 /* For convenience.  */
 #define check_md5_password(key,crypted)	md5_password((key), (crypted), 1)

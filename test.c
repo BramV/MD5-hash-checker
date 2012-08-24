@@ -3,13 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static unsigned char *
-md5 (const char *input) 
-{
-  md5_init ();
-  md5_update (input, strlen (input));
-  return md5_final ();
-}
+#define MAX_LENGTH	12
 
 static void
 test (char *buffer, char *expected) 
@@ -27,13 +21,32 @@ test (char *buffer, char *expected)
     printf ("MD5(%s) OK\n", buffer);
 }
 
+static int findText(char * buff, char * start, int length) {
+	return 0;
+}
 
 int main(int argc, char ** argv) {
 	if(argc < 2) {
-		printf("Please give an argument argument.");
+		printf("Usage: %s <salt> <hash>", argv[0]);
+		return 1
 	}
 	
-	test(argv[1], argv[2]);
+	char buff[strlen(argv[1]) + MAX_LENGTH + 1];
+	
+	memcpy(buff, argv[1], strlen(argv[1]));
+	
+	char *start = buff + strlen(argv[1]);
+	
+	int count;
+	for (count = 0; count <= MAX_LENGTH; count++) {
+		*(start + count) = '\0';
+	}
+	
+	for (count = 1; count <= MAX_LENGTH; count++) {
+		if (findText(buff, start, length) == 0) {
+			
+		}
+	}
 	
 	return 0;
 }

@@ -320,8 +320,7 @@ md5_password (const char *key, char *crypted, int check)
 }
 #endif
 
-#ifdef TEST
-static char *
+char *
 md5 (const char *input) 
 {
   memcpy ((char *) state, (char *) initstate, sizeof (initstate));
@@ -329,6 +328,8 @@ md5 (const char *input)
   md5_update (input, strlen (input));
   return md5_final ();
 }
+
+#ifdef TEST
 
 static void
 test (char *buffer, char *expected) 
