@@ -11,7 +11,7 @@ static int findText(char * buff, char * start, int length) {
 
 int main(int argc, char ** argv) {
 	if(argc < 2) {
-		printf("Usage: %s <salt> <hash>", argv[0]);
+		printf("Usage: %s <salt> <hash>\n", argv[0]);
 		return 1;
 	}
 	
