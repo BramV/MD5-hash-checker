@@ -3,9 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_LENGTH	12
+#define MAX_LENGTH	16
+#define MIN_LENGTH	1
 
-static bool findText_internal(const char * const start, char * const current, int length, const char * const hash)
+static bool findText_internal(const char * const start, char * const current, const int length, const char * const hash)
 {
 	if (length == 0)
 		return check_hash(start, hash);
@@ -14,18 +15,20 @@ static bool findText_internal(const char * const start, char * const current, in
 	
 	for (c = 'a'; c <= 'z'; c++) {
 		*current = c;
-		if (findText_internal(start, current + sizeof(char), length - sizeof(char), hash))
+		if (findText_internal(start, current + sizeof(char), length - 1, hash))
 			return true;
 	}
 	
 	for (c = 'A'; c <= 'Z'; c++) {
 		*current = c;
-		if (findText_internal(start, current + sizeof(char), length - sizeof(char), hash))
+		if (findText_internal(start, current + sizeof(char), length - 1, hash))
 			return true;
 	}
+	
+	return false;
 }
 
-static bool findText(char * const start, int length, const char * const hash)
+static bool findText(char * const start, const int length, const char * const hash)
 {
 	return findText_internal(start, start, length, hash);
 }
@@ -51,12 +54,14 @@ int main(int argc, char ** argv)
 	const char * const hash = argv[2];
 	
 	int count;
-	for (count = 1; count < MAX_LENGTH; count++) {
+	for (count = MIN_LENGTH; count < MAX_LENGTH; count++) {
 		if (findText(end - count * sizeof(char), count, hash)) {
 			printf("Match found: %s\n", end - count * sizeof(char));
 			*end = '\0';
 			printf("Matching string: %s\n", end - count * sizeof(char));
 			return 0;
+		} else {
+			printf("Tried all passwords with length %d.\n", count);
 		}
 	}
 	
