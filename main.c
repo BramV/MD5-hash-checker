@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define MAX_LENGTH	4
+#define MAX_LENGTH	5
 #define MIN_LENGTH	1
 
 static bool findText_internal(const char * const start, char * const current, const int length, const unsigned char * const hash)
@@ -84,6 +84,5 @@ int main(int argc, char ** argv)
 		printf("process finished\n");
 	}
 
-	printf("Failed to find any matching password between lengths %d and %d.\n", MIN_LENGTH, MAX_LENGTH);
 	return 2;
 }
