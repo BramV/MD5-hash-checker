@@ -22,6 +22,8 @@
  */
 
 #include "md5.h"
+#include "hex.h"
+	 
 #include <stdio.h>
 #include <string.h>
 
@@ -312,7 +314,18 @@ char * md5 (const char * const input)
   return md5_final ();
 }
 
-bool check_hash_internal (const char * const input, const char * const expected, char result[16 * 3 + 1]) {
+bool check_hash (const char * const input, const unsigned char * const expected)
+{
+    unsigned char* digest = md5 (input);
+
+    if (strncmp (digest, expected, 16))
+      return false;
+    else
+      return true;
+}
+
+bool check_hex_hash (const char * const input, const char * const expected, char * const result)
+{
     unsigned char* digest = md5 (input);
     int i;
 
@@ -325,16 +338,10 @@ bool check_hash_internal (const char * const input, const char * const expected,
       return true;
 }
 
-bool check_hash (const char * const input, const char * const expected) 
-{
-  char result[16 * 3 +1];
-  return check_hash_internal (input, expected, result);
-}
-
 void test (const char * const input, const char * const expected)
 {
   char result[16 * 3 + 1];
-  if (! check_hash_internal (input, expected, result))
+  if (! check_hex_hash (input, expected, result))
     printf ("MD5(%s) failed: %s\n", input, result);
   else
     printf ("MD5(%s) OK\n", input);

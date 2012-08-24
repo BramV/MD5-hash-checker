@@ -28,7 +28,9 @@ typedef enum { false, true } bool;
 
 char *md5(const char * const);
 void test (const char * const, const char * const);
-bool check_hash (const char * const input, const char * const expected);
+
+bool check_hash (const char * const input, const unsigned char * const expected);
+bool check_hex_hash (const char * const input, const char * const expected, char * const result);
 
 /* For convenience.  */
 #define check_md5_password(key,crypted)	md5_password((key), (crypted), 1)
