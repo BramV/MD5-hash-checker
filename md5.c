@@ -304,7 +304,7 @@ int md5_password (const char *key, char *crypted, int check)
 }
 
 
-static char * md5 (const char *input) 
+char * md5 (const char *input) 
 {
   memcpy ((char *) state, (char *) initstate, sizeof (initstate));
   length = 0;
