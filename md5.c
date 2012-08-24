@@ -312,7 +312,7 @@ char * md5 (const char *input)
   return md5_final ();
 }
 
-static void test (char *buffer, char *expected) 
+void test (char *buffer, char *expected) 
 {
   char result[16 * 3 +1];
   unsigned char* digest = md5 (buffer);

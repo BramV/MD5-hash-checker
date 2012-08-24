@@ -26,6 +26,7 @@
 //int md5_password (const char *key, char *crypted, int check);
 
 char *md5(const char *);
+void test (char *buffer, char *expected);
 
 /* For convenience.  */
 #define check_md5_password(key,crypted)	md5_password((key), (crypted), 1)
