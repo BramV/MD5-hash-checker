@@ -1,0 +1,1 @@
+Dutch Dictonary from webiste http://www.ntg.nl/spelling/ under the GNU Lesser General Public License
