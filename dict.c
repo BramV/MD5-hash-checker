@@ -43,14 +43,14 @@ int main(int argc, char ** argv)
 		return 1;
 	}
 	char **words = NULL;
-	
+
 	if(argc < 3){
 		words = ReadFile(NULL);
 	}
 	else{
 		words = ReadFile(argv[3]);
 	}
-	
+
 	//Need to be changed so that it uses a word out of the list
 	
 	unsigned char hash[17];
@@ -70,9 +70,11 @@ int main(int argc, char ** argv)
 	for (iter = buff; iter < end; iter += sizeof(char)) { //sets all the char before the salt as \0
 		*(iter) = '\0';
 	}
+	printf("line %d\n", __LINE__);
+	fflush(stdout);
 	int count;
 	for(count = 0;count < AMOUNT_OF_WORDS; count++){
-		char *start = buff + (MAX_LENGTH - strlen(words[count]));
+		char *start = end - strlen(words[count]);
 		memcpy(start, words[count], strlen(words[count]) * sizeof(char)); //tries to copy the string on the right place in the buff
 		if(check_hash(start, hash)){
 			printf("PASSWORD FOUND %s", words[count]);
