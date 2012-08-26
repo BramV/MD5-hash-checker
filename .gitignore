@@ -4,5 +4,6 @@ unhasher
 .DS_Store
 
 unhasherBruteForce
-
 unhasherDictonary
+
+analyze_dictionary
