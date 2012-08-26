@@ -41,6 +41,7 @@ static char** ReadFile(char * filename)
 	char *word;
 	ssize_t size;
 	int chars;
+	maxLength = 0;
 	for(count = 0; count < nbLines; count++){
 		word = NULL;
 		size = 0;
@@ -58,38 +59,110 @@ static char** ReadFile(char * filename)
 		
 		word[chars - 1] = '\0';
 		words[count] = word;
-		
-//		printf("%x\t%d\t%d\t%s\n", word, size, chars, word);
 	}
 	
 	printf("Max word length: %d\nFinished reading dictionary\n", maxLength);
 	return words;
 }
 
+static char switchCase(char c)
+{
+	char d = toupper(c);
+	return (d == c) ? tolower(c) : d;
+}
+
+static bool checkWord_internal(const char * const start, char * current, int length, const char * const hash)
+{
+	if (length == 0)
+		return check_hash(start, hash);
+
+	char c = *current;
+	*current = switchCase(*current);
+	if (checkWord_internal(start, current + sizeof(char), length - 1, hash))
+		return true;
+
+	*current = c;
+	return checkWord_internal(start, current + sizeof(char), length - 1, hash);
+}
+
+static bool checkWord(char * start, int length, const char * const hash, bool caseSensitive)
+{
+	if (caseSensitive & length < 15)
+		return checkWord_internal(start, start, length, hash);
+	else
+		return check_hash(start, hash);
+}
+
+static bool checkFile(char * filename, const char hash[17], const char * const salt, bool caseSensitive, int *returnValue)
+{
+	char ** words = NULL;
+	*returnValue = 0;
+
+	words = ReadFile(filename);
+	if (words == NULL) {
+		printf("Invalid file: %s\n", filename);
+		*returnValue = 1;
+		return false;
+	}
+
+	char buff[strlen(salt) + maxLength + 1];
+	char * const end = buff + maxLength * sizeof(char); //end is the part where the salt begins
+	
+	memcpy(end, salt, strlen(salt) * sizeof(char));
+	*(end + strlen(salt) * sizeof(char)) = '\0'; //puts the \0 as last char in de buff 
+	
+	char * iter;
+	for (iter = buff; iter < end; iter += sizeof(char)) { //sets all the char before the salt as \0
+		*(iter) = '\0';
+	}
+
+	printf("Checking for password ");
+	fflush(stdout);
+
+	int count;
+	char *start;
+	int length;
+	for(count = 0;count < nbLines; count++){
+		if ((count << (sizeof(int) * 8 - 10)) == 0) {
+			printf(".");
+			fflush(stdout);
+		}
+
+		length = strlen(words[count]);
+		start = end - length;
+		memcpy(start, words[count], length * sizeof(char)); //tries to copy the string on the right place in the buff
+		
+		if(checkWord(start, length, hash, caseSensitive)) {
+			printf("\nMatch: %s\nPassword: %s\n", start, words[count]);
+			return true;
+		}
+	}
+	printf("\nThe password is not in the dictonary.\n\n");
+	return false;	
+}
+
 int main(int argc, char ** argv)
 {
-	if(argc < 2) {
-		printf("Usage: %s <salt> <hash> [<filename>]\n", argv[0]);
+	if(argc < 3) {
+		printf("Usage: %s [-i] <salt> <hash> <filename> [filename...]\n", argv[0]);
 		return 1;
 	}
-	char **words = NULL;
 
-	if(argc < 3){
-		words = ReadFile(NULL);
+	bool caseSensitive;
+	int argOffset;
+	if (!strcmp(argv[1], "-i")) {
+		caseSensitive = true;
+		argOffset = 1;
+		if (argc < 4) {
+			printf("Usage: %s [-i] <salt> <hash> <filename> [filename...]\n", argv[0]);
+			return 1;
+		}
+		printf("Running case insensitive check...");
+	} else {
+		caseSensitive = false;
+		argOffset = 0;
 	}
-	else{
-		words = ReadFile(argv[3]);
-	}
-	
-	if (words == NULL) {
-		printf("Error: invalid input");
-		return -1;
-	}
-	
-	printf("\n");
 
-	//Need to be changed so that it uses a word out of the list
-	
 	unsigned char hash[17];
 	if (strlen(argv[2]) == 16 * 2) {
 		hex2string(argv[2], hash);
@@ -97,27 +170,15 @@ int main(int argc, char ** argv)
 		memcpy(hash, argv[2], strlen(argv[2]) * sizeof(char));
 	}
 	
-	char buff[strlen(argv[1]) + maxLength + 1];
-	char * const end = buff + maxLength * sizeof(char); //end is the part where the salt begins
-	
-	memcpy(end, argv[1], strlen(argv[1]) * sizeof(char));
-	*(end + strlen(argv[1]) * sizeof(char)) = '\0'; //puts the \0 as last char in de buff 
-	
-	char * iter;
-	for (iter = buff; iter < end; iter += sizeof(char)) { //sets all the char before the salt as \0
-		*(iter) = '\0';
-	}
-
 	int count;
-	for(count = 0;count < nbLines; count++){
-		char *start = end - strlen(words[count]);
-		memcpy(start, words[count], strlen(words[count]) * sizeof(char)); //tries to copy the string on the right place in the buff
-		
-		if(check_hash(start, hash)){
-			printf("Match: %s\nPassword: %s\n", start, words[count]);
+	int retVal;
+	for (count = argOffset + 3; count < argc; count++) {
+		printf("Checking dictionary %s\n", argv[count]);
+		if (checkFile(argv[count], hash, argv[1], caseSensitive, &retVal)) {
 			return 0;
+		} else if (retVal != 0) {
+			return retVal;
 		}
 	}
-	printf("The password is not in the dictonary.\n");
-	return 2;
+	return 0;
 }
