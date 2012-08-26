@@ -9,11 +9,11 @@
 #include <sys/wait.h>
 
 #define AMOUNT_OF_WORDS 220390
-#define MAX_LENGTH 15
+#define MAX_LENGTH 17
 
 static char** ReadFile(char * Filename)
 {
-	FILE *fp;
+	FILE *fp = NULL;
 	
 	if(Filename == NULL){
 		fp = fopen("./Dutch_dict.txt","r");
@@ -21,7 +21,7 @@ static char** ReadFile(char * Filename)
 		fp = fopen(Filename,"r");
 	}
 	
-	if(fp = NULL){
+	if(fp == NULL){
 		return NULL;
 	}
 	
@@ -43,6 +43,7 @@ int main(int argc, char ** argv)
 		return 1;
 	}
 	char **words = NULL;
+	
 	if(argc < 3){
 		words = ReadFile(NULL);
 	}
