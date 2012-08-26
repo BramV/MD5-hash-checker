@@ -1,5 +1,5 @@
 #!/bin/bash
-clear
+
 if [ $(which gcc) ]; then
 	COMPILER=gcc
 else

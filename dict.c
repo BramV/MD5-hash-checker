@@ -6,10 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
 
 #define AMOUNT_OF_WORDS 220390
-#define MAX_LENGTH 17
+
+int maxLength;
 
 static char** ReadFile(char * Filename)
 {
@@ -25,13 +25,31 @@ static char** ReadFile(char * Filename)
 		return NULL;
 	}
 	
-	char **words = malloc(sizeof(char*)*AMOUNT_OF_WORDS);
+	char **words = malloc(sizeof(char*) * AMOUNT_OF_WORDS);
+	
 	int count;
-	int size = 3;
+	char *word;
+	ssize_t size;
+	int chars;
 	for(count = 0; count < AMOUNT_OF_WORDS; count++){
-		char *word = malloc((sizeof(char)*size) + 1);
-		getline(&word,&size,fp);
+		word = NULL;
+		size = 0;
+		
+		if ((chars = getline(&word,&size,fp)) == -1) {
+			int i;
+			for (i = 0; i < count; i++)
+				free(words[i]);
+			free(words);
+			return NULL;
+		}
+		
+		if (maxLength < (chars - 1))
+			maxLength = chars - 1;
+		
+		word[chars - 1] = '\0';
 		words[count] = word;
+		
+//		printf("%x\t%d\t%d\t%s\n", word, size, chars, word);
 	}
 	return words;
 }
@@ -50,6 +68,11 @@ int main(int argc, char ** argv)
 	else{
 		words = ReadFile(argv[3]);
 	}
+	
+	if (words == NULL) {
+		printf("Error: invalid input");
+		return -1;
+	}
 
 	//Need to be changed so that it uses a word out of the list
 	
@@ -60,8 +83,8 @@ int main(int argc, char ** argv)
 		memcpy(hash, argv[2], strlen(argv[2]) * sizeof(char));
 	}
 	
-	char buff[strlen(argv[1]) + MAX_LENGTH + 1];
-	char * const end = buff + MAX_LENGTH * sizeof(char); //end is the part where the salt begins
+	char buff[strlen(argv[1]) + maxLength + 1];
+	char * const end = buff + maxLength * sizeof(char); //end is the part where the salt begins
 	
 	memcpy(end, argv[1], strlen(argv[1]) * sizeof(char));
 	*(end + strlen(argv[1]) * sizeof(char)) = '\0'; //puts the \0 as last char in de buff 
@@ -70,17 +93,17 @@ int main(int argc, char ** argv)
 	for (iter = buff; iter < end; iter += sizeof(char)) { //sets all the char before the salt as \0
 		*(iter) = '\0';
 	}
-	printf("line %d\n", __LINE__);
-	fflush(stdout);
+
 	int count;
 	for(count = 0;count < AMOUNT_OF_WORDS; count++){
 		char *start = end - strlen(words[count]);
 		memcpy(start, words[count], strlen(words[count]) * sizeof(char)); //tries to copy the string on the right place in the buff
+		
 		if(check_hash(start, hash)){
-			printf("PASSWORD FOUND %s", words[count]);
+			printf("Match: %s\nPassword: %s\n", start, words[count]);
 			return 0;
 		}
 	}
-	printf("Sorry the password is not in the dictonary");
-	return 1;
+	printf("The password is not in the dictonary.\n");
+	return 2;
 }
