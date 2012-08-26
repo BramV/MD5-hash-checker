@@ -74,7 +74,7 @@ int main (int argc, char ** argv)
 
 	printf("Length\tNb\n");
 	for (count = 0; count < maxLength; count++)
-		printf("%d\t%d\n", count+1, wordsByLength[count]);
+		printf("%d\t%ld\n", count+1, wordsByLength[count]);
 	
 	printf("Finished reading dictionary\n");
 	return 0;
