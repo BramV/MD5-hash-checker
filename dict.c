@@ -7,31 +7,41 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define AMOUNT_OF_WORDS 220390
-
 int maxLength;
+int nbLines;
 
-static char** ReadFile(char * Filename)
+static char** ReadFile(char * filename)
 {
 	FILE *fp = NULL;
 	
-	if(Filename == NULL){
+	if(filename == NULL){
 		fp = fopen("./Dutch_dict.txt","r");
 	}else{
-		fp = fopen(Filename,"r");
+		fp = fopen(filename,"r");
 	}
 	
 	if(fp == NULL){
 		return NULL;
 	}
 	
-	char **words = malloc(sizeof(char*) * AMOUNT_OF_WORDS);
+	printf("Reading dictionary %s\n", (filename == NULL) ? "./Dutch_dict.txt" : filename);
+	
+	nbLines = 0;
+	char c;
+	while ((c = fgetc(fp)) != EOF)
+		if (c == '\n')
+			nbLines++;
+	
+	printf("nbLines: %d\n", nbLines);
+	rewind(fp);
+	
+	char **words = malloc(sizeof(char*) * nbLines);
 	
 	int count;
 	char *word;
 	ssize_t size;
 	int chars;
-	for(count = 0; count < AMOUNT_OF_WORDS; count++){
+	for(count = 0; count < nbLines; count++){
 		word = NULL;
 		size = 0;
 		
@@ -51,6 +61,8 @@ static char** ReadFile(char * Filename)
 		
 //		printf("%x\t%d\t%d\t%s\n", word, size, chars, word);
 	}
+	
+	printf("Max word length: %d\nFinished reading dictionary\n", maxLength);
 	return words;
 }
 
@@ -73,6 +85,8 @@ int main(int argc, char ** argv)
 		printf("Error: invalid input");
 		return -1;
 	}
+	
+	printf("\n");
 
 	//Need to be changed so that it uses a word out of the list
 	
@@ -95,7 +109,7 @@ int main(int argc, char ** argv)
 	}
 
 	int count;
-	for(count = 0;count < AMOUNT_OF_WORDS; count++){
+	for(count = 0;count < nbLines; count++){
 		char *start = end - strlen(words[count]);
 		memcpy(start, words[count], strlen(words[count]) * sizeof(char)); //tries to copy the string on the right place in the buff
 		
