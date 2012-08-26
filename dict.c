@@ -143,7 +143,7 @@ static bool checkFile(char * filename, const char hash[17], const char * const s
 
 int main(int argc, char ** argv)
 {
-	if(argc < 3) {
+	if(argc < 3 || argv[3] == NULL) {
 		printf("Usage: %s [-i] <salt> <hash> <filename> [filename...]\n", argv[0]);
 		return 1;
 	}
@@ -153,7 +153,7 @@ int main(int argc, char ** argv)
 	if (!strcmp(argv[1], "-i")) {
 		caseSensitive = true;
 		argOffset = 1;
-		if (argc < 4) {
+		if (argc < 4 | argv[4] == NULL) {
 			printf("Usage: %s [-i] <salt> <hash> <filename> [filename...]\n", argv[0]);
 			return 1;
 		}
@@ -173,6 +173,7 @@ int main(int argc, char ** argv)
 	int count;
 	int retVal;
 	for (count = argOffset + 3; count < argc; count++) {
+		if (argv[count] == NULL) continue;
 		printf("Checking dictionary %s\n", argv[count]);
 		if (checkFile(argv[count], hash, argv[1], caseSensitive, &retVal)) {
 			return 0;
