@@ -153,7 +153,7 @@ int main(int argc, char ** argv)
 	if (!strcmp(argv[1], "-i")) {
 		caseSensitive = true;
 		argOffset = 1;
-		if (argc < 4 | argv[4] == NULL) {
+		if (argc < 4 || argv[4] == NULL) {
 			printf("Usage: %s [-i] <salt> <hash> <filename> [filename...]\n", argv[0]);
 			return 1;
 		}
@@ -164,10 +164,10 @@ int main(int argc, char ** argv)
 	}
 
 	unsigned char hash[17];
-	if (strlen(argv[2]) == 16 * 2) {
-		hex2string(argv[2], hash);
-	} else if (strlen(argv[2]) == 16) {
-		memcpy(hash, argv[2], strlen(argv[2]) * sizeof(char));
+	if (strlen(argv[2 + argOffset]) == 16 * 2) {
+		hex2string(argv[2 + argOffset], hash);
+	} else if (strlen(argv[2 + argOffset]) == 16) {
+		memcpy(hash, argv[2 + argOffset], strlen(argv[2]) * sizeof(char));
 	}
 	
 	int count;
