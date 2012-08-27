@@ -10,6 +10,8 @@
 int maxLength;
 int nbLines;
 
+#define	MAX_SIZE_CASE_INSENSITIVE	20
+
 static char** ReadFile(char * filename)
 {
 	FILE *fp = NULL;
@@ -88,7 +90,7 @@ static bool checkWord_internal(const char * const start, char * current, int len
 
 static bool checkWord(char * start, int length, const char * const hash, bool caseSensitive)
 {
-	if (caseSensitive & length < 15)
+	if (caseSensitive && length <= MAX_SIZE_CASE_INSENSITIVE)
 		return checkWord_internal(start, start, length, hash);
 	else
 		return check_hash(start, hash);
