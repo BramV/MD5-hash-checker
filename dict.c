@@ -73,8 +73,9 @@ static char switchCase(char c)
 
 static bool checkWord_internal(const char * const start, char * current, int length, const char * const hash)
 {
-	if (length == 0)
+	if (length == 0) {
 		return check_hash(start, hash);
+	}
 
 	char c = *current;
 	*current = switchCase(*current);
@@ -167,7 +168,10 @@ int main(int argc, char ** argv)
 	if (strlen(argv[2 + argOffset]) == 16 * 2) {
 		hex2string(argv[2 + argOffset], hash);
 	} else if (strlen(argv[2 + argOffset]) == 16) {
-		memcpy(hash, argv[2 + argOffset], strlen(argv[2]) * sizeof(char));
+		memcpy(hash, argv[2 + argOffset], strlen(argv[2 + argOffset]) * sizeof(char));
+	} else {
+		printf("Invalid hash\n");
+		return 4;
 	}
 	
 	int count;
@@ -175,7 +179,7 @@ int main(int argc, char ** argv)
 	for (count = argOffset + 3; count < argc; count++) {
 		if (argv[count] == NULL) continue;
 		printf("Checking dictionary %s\n", argv[count]);
-		if (checkFile(argv[count], hash, argv[1], caseSensitive, &retVal)) {
+		if (checkFile(argv[count], hash, argv[1 + argOffset], caseSensitive, &retVal)) {
 			return 0;
 		} else if (retVal != 0) {
 			return retVal;
